@@ -23,18 +23,19 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 90%;
         }
         h1 { margin-bottom: 1.5rem; font-weight: 300; }
         .counter {
             display: flex;
             justify-content: center;
-            gap: 20px;
-            font-size: 2.5rem;
+            gap: 15px;
+            font-size: clamp(1.5rem, 5vw, 2.5rem);
             font-weight: bold;
             margin-bottom: 2rem;
         }
-        .time-segment { display: flex; flex-direction: column; }
-        .label { font-size: 0.8rem; text-transform: uppercase; color: #aaa; margin-top: 5px; }
+        .time-segment { display: flex; flex-direction: column; min-width: 60px; }
+        .label { font-size: 0.7rem; text-transform: uppercase; color: #aaa; margin-top: 5px; }
         button {
             padding: 12px 30px;
             font-size: 1rem;
@@ -43,10 +44,10 @@
             background: #ff4b2b;
             color: white;
             cursor: pointer;
-            transition: transform 0.2s, background 0.2s;
+            transition: 0.2s;
         }
         button:hover { background: #ff416c; transform: scale(1.05); }
-        button:active { transform: scale(0.95); }
+        .info { margin-top: 20px; font-size: 0.8rem; color: #888; }
     </style>
 </head>
 <body>
@@ -59,43 +60,21 @@
         <div class="time-segment"><span id="minutes">00</span><span class="label">Minutos</span></div>
         <div class="time-segment"><span id="seconds">00</span><span class="label">Segundos</span></div>
     </div>
-    <button id="btnReset" onclick="resetCounter()">Pinto fue mencionado</button>
+    <button onclick="resetCounter()">Pinto fue mencionado</button>
+    <p class="info" id="status">Contando desde el inicio de los tiempos...</p>
 </div>
 
 <script>
-    // IMPORTANTE: Cambia "mi-contador-pinto-2026" por cualquier palabra única para tu grupo
-    const NAMESPACE = "contador-pinto-global"; 
-    const KEY = "ultima_mencion";
+    // 1. Obtener la fecha de la URL o usar una por defecto (Hoy 2 de Abril 10:00 AM)
+    const urlParams = new URLSearchParams(window.location.search);
+    let startTimestamp = urlParams.get('t') || new Date(2026, 3, 2, 10, 0, 0).getTime();
     
-    let startTime = Date.now();
+    const startDate = new Date(parseInt(startTimestamp));
+    document.getElementById('status').innerText = "Contando desde: " + startDate.toLocaleString();
 
-    // Función para obtener la hora de inicio desde la API
-    async function syncTime() {
-        try {
-            const response = await fetch(`https://api.countapi.xyz/get/${NAMESPACE}/${KEY}`);
-            const data = await response.json();
-            // Multiplicamos por 1000 porque guardaremos segundos en la API
-            startTime = data.value * 1000;
-        } catch (e) {
-            // Si la llave no existe, la creamos con el tiempo actual
-            resetCounter();
-        }
-    }
-
-    async function resetCounter() {
-        const nowInSeconds = Math.floor(Date.now() / 1000);
-        try {
-            // Guardamos el momento exacto actual en la nube
-            await fetch(`https://api.countapi.xyz/set/${NAMESPACE}/${KEY}?value=${nowInSeconds}`);
-            startTime = Date.now();
-            alert("¡Contador reiniciado para todos!");
-        } catch (e) {
-            console.error("Error al sincronizar");
-        }
-    }
-
-    function updateDisplay() {
-        const diff = Date.now() - startTime;
+    function updateCounter() {
+        const now = Date.now();
+        const diff = now - startTimestamp;
         const displayDiff = diff > 0 ? diff : 0;
 
         const d = Math.floor(displayDiff / (1000 * 60 * 60 * 24));
@@ -109,10 +88,14 @@
         document.getElementById('seconds').innerText = s.toString().padStart(2, '0');
     }
 
-    // Sincronizar al cargar y luego cada 30 segundos por si alguien más reinició
-    syncTime();
-    setInterval(syncTime, 30000); 
-    setInterval(updateDisplay, 1000);
+    function resetCounter() {
+        const newTime = Date.now();
+        // Redirigir a la misma página pero con el nuevo tiempo en el enlace
+        window.location.href = window.location.pathname + "?t=" + newTime;
+    }
+
+    setInterval(updateCounter, 1000);
+    updateCounter();
 </script>
 
 </body>
