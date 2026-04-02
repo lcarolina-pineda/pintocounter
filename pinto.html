@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tiempo sin mencionar a Pinto</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #1e1e2f, #2a2a40);
+            color: white;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 { margin-bottom: 1.5rem; font-weight: 300; }
+
+        .counter {
+            display: flex;
+            gap: 20px;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 2rem;
+        }
+
+        .time-segment { display: flex; flex-direction: column; }
+
+        .label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: #aaa;
+            margin-top: 5px;
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 50px;
+            background: #ff4b2b;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        button:hover {
+            background: #ff416c;
+            transform: scale(1.05);
+        }
+
+        button:active { transform: scale(0.95); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Tiempo Transcurrido</h1>
+    <div class="counter">
+        <div class="time-segment">
+            <span id="days">00</span>
+            <span class="label">Días</span>
+        </div>
+        <div class="time-segment">
+            <span id="hours">00</span>
+            <span class="label">Horas</span>
+        </div>
+        <div class="time-segment">
+            <span id="minutes">00</span>
+            <span class="label">Minutos</span>
+        </div>
+        <div class="time-segment">
+            <span id="seconds">00</span>
+            <span class="label">Segundos</span>
+        </div>
+    </div>
+    <button onclick="resetCounter()">Reiniciar Conteo</button>
+</div>
+
+<script>
+    let startTime = localStorage.getItem('startTime') || Date.now();
+    
+    // Si no existía en el almacenamiento local, lo guardamos
+    if (!localStorage.getItem('startTime')) {
+        localStorage.setItem('startTime', startTime);
+    }
+
+    function updateCounter() {
+        const now = Date.now();
+        const diff = now - startTime;
+
+        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+        document.getElementById('days').innerText = d.toString().padStart(2, '0');
+        document.getElementById('hours').innerText = h.toString().padStart(2, '0');
+        document.getElementById('minutes').innerText = m.toString().padStart(2, '0');
+        document.getElementById('seconds').innerText = s.toString().padStart(2, '0');
+    }
+
+    function resetCounter() {
+        startTime = Date.now();
+        localStorage.setItem('startTime', startTime);
+        updateCounter();
+    }
+
+    // Actualizar cada segundo
+    setInterval(updateCounter, 1000);
+    updateCounter();
+</script>
+
+</body>
+</html>
