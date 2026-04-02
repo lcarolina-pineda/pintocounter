@@ -90,21 +90,23 @@
 </div>
 
 <script>
-    let startTime = localStorage.getItem('startTime') || Date.now();
-    
-    // Si no existía en el almacenamiento local, lo guardamos
-    if (!localStorage.getItem('startTime')) {
-        localStorage.setItem('startTime', startTime);
-    }
+   <script>
+    // 1. CONFIGURA AQUÍ TU FECHA DE INICIO (Año, Mes - 1, Día, Hora, Minuto, Segundo)
+    // Nota: El mes empieza en 0 (Enero es 0, Febrero es 1, Marzo es 2, etc.)
+    // Ejemplo para el 2 de Abril de 2026 a las 10:00 AM:
+    const universalStartTime = new Date(2026, 3, 2, 10, 0, 0).getTime();
 
     function updateCounter() {
         const now = Date.now();
-        const diff = now - startTime;
+        const diff = now - universalStartTime;
 
-        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        const s = Math.floor((diff % (1000 * 60)) / 1000);
+        // Si la diferencia es negativa (fecha futura), mostramos 0
+        const displayDiff = diff > 0 ? diff : 0;
+
+        const d = Math.floor(displayDiff / (1000 * 60 * 60 * 24));
+        const h = Math.floor((displayDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const m = Math.floor((displayDiff % (1000 * 60 * 60)) / (1000 * 60));
+        const s = Math.floor((displayDiff % (1000 * 60)) / 1000);
 
         document.getElementById('days').innerText = d.toString().padStart(2, '0');
         document.getElementById('hours').innerText = h.toString().padStart(2, '0');
@@ -112,19 +114,11 @@
         document.getElementById('seconds').innerText = s.toString().padStart(2, '0');
     }
 
+    // El botón de reinicio ahora te dirá que debes editar el código
     function resetCounter() {
-        startTime = Date.now();
-        localStorage.setItem('startTime', startTime);
-        updateCounter();
+        alert("Para reiniciar este contador global, debes editar la fecha 'universalStartTime' en el código de GitHub.");
     }
 
-    // Actualizar cada segundo
     setInterval(updateCounter, 1000);
     updateCounter();
 </script>
-
-</body>
-</html>
-
-
- 
